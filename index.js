@@ -15,12 +15,15 @@ let compare = document.getElementById("compare");
 let values  = document.getElementById("values");
 
 
+
+let frameSize;
 let reference_string  = [];
 let cache = [];
 let flag = true;
 let pagefaults = 0;
 let no_execution = 1;
 let comparison_arr = [];
+let bestFlag = 0;
 
 
 pageno.addEventListener("keypress",function(event){
@@ -63,23 +66,22 @@ addbtn.addEventListener("click",function(){
 
 
 best.addEventListener("click",async function(){
+    comparison_arr = []
     if(flag){
         if(!reference_string.length){
             alert("No reference string is given ! ! !");
             return ;
         }
+        bestFlag=1;
         algo.innerHTML = "";
         compare.style.opacity="0";
         no_execution=0;
         cur_ele.style.opacity = ".2";
         fifo.click();
         cur_ele.innerHTML ="";
-        // await sleep(2000);
         lru.click();
         cur_ele.innerHTML ="";
-        // await sleep(2000);
         opr.click();
-        flag=false;
         cur_ele.innerHTML ="";
         let idx = 0;
         for (let i = 0 ; i < 3 ; i++){
@@ -87,6 +89,7 @@ best.addEventListener("click",async function(){
                 idx = i;
             }
         }
+
         compare.innerHTML = "The Best Page Replacement Algorithm for the given string is : ";
         if(idx===0){
             compare.innerHTML += "First In First Out";
@@ -106,32 +109,25 @@ best.addEventListener("click",async function(){
     else{
         if(no_execution) alert("Your program is already running!!!");
     }
+    bestFlag = 0;
 })
 
  
 
-function gridformation(){
+function gridformation(frameSize){
     compare.style.opacity = 0;
     let len = reference_string.length;
     for(let i = 0 ; i < len ; i++){
         let grid = document.createElement("div");
-        for(let j = 0 ; j < 5 ; j++){
+        for(let j = 0 ; j < frameSize ; j++){
             let cell = document.createElement("div");
             cell.style.height="60px";
             grid.appendChild(cell);
-            if(j==4){
-                cell.id= i+"ITEM";
-                cell.innerHTML = ".";
-                cell.style.fontSize = "25px";
-                cell.style.textAlign="center";
-            }
-            else{
-                cell.innerHTML = "..";
-                cell.style.fontSize = "30px";
-                cell.style.textAlign="center";
-                cell.id = i+"item"+j;
-                cell.style.border = "skyblue 10px solid";
-            }
+            cell.innerHTML = "..";
+            cell.style.fontSize = "30px";
+            cell.style.textAlign="center";
+            cell.id = i+"item"+j;
+            cell.style.border = "skyblue 10px solid";
         }
         grid.style.margin = "40px 30px 0px 0";
         grids.appendChild(grid);
@@ -157,24 +153,25 @@ fifo.addEventListener("click", async function(){
             alert("No reference string is given ! ! !");
             return ;
         }
+        frameSize = prompt("Please Enter the frame size : ");
+        if(frameSize==0){
+            alert('Enter frame size ! ! !')
+            return;
+        }
         flag=false;
         grids.replaceChildren();
         pagefaults = 0;
         if(no_execution) {
             algo.innerHTML = "FIRST IN FIRST OUT ALGORITHM";
-            gridformation();
+            gridformation(frameSize);
             nopagefault.innerHTML = "Number of Page Faults : ";
         }
         for(let i = 0 ; i < reference_string.length ; i++){
-            let pre=0,ptr;
+            let pre=0;
             let fl = false;
             if(no_execution){
                 cur_ele.innerHTML = reference_string[i];
                 await sleep(slidevar.value*-1);
-                ptr = document.getElementById(i+"ITEM");
-                ptr.style.paddingTop = "5px";
-                ptr.style.fontWeight="bolder";
-                ptr.style.fontSize="20px";
                 for(let j = 0 ; j < cache.length ; j++){
                     let idx = document.getElementById(i+"item"+j);
                     idx.innerHTML = cache[j].element;
@@ -187,7 +184,7 @@ fifo.addEventListener("click", async function(){
                         let idx = document.getElementById(i+"item"+j);
                         idx.style.backgroundColor = "lightseagreen";
                         idx.style.color = "white";
-                        ptr.innerHTML = "-";
+                        
                         await sleep(slidevar.value*-1+1000);
                     }
                     break;
@@ -200,7 +197,7 @@ fifo.addEventListener("click", async function(){
             }
             if(!fl){
                 let idx;
-                if(cache.length==4){
+                if(cache.length==frameSize){
                     cache[pre].index = i;
                     cache[pre].element = reference_string[i];
                     if(no_execution){
@@ -224,7 +221,7 @@ fifo.addEventListener("click", async function(){
                 pagefaults++;
                 if(no_execution) {
                     idx.style.color = "white";
-                    ptr.innerHTML= "*";
+                    
                     nopagefault.innerHTML = "Number of Page Faults : ";
                     nopagefault.innerHTML += pagefaults;
                     await sleep(slidevar.value*-1);
@@ -253,24 +250,28 @@ lru.addEventListener("click",async function(){
             alert("No reference string is given ! ! !");
             return ;
         }
+        if(!bestFlag){
+            frameSize = prompt("Please Enter the frame size : ");
+            if(frameSize==0){
+                alert('Enter frame size ! ! !')
+                return;
+            }
+        }   
         flag=false;
         if(no_execution){
             algo.innerHTML = "LEAST RECENTLY USED ALGORITHM";
             grids.replaceChildren();
-            gridformation();
+            gridformation(frameSize);
             nopagefault.innerHTML = "Number of Page Faults : ";
         }
         pagefaults = 0;
         for(let i = 0 ; i < reference_string.length ; i++){
-            let pre=0,ptr;
+            let pre=0;
             let fl = false;
             if(no_execution){
                 cur_ele.innerHTML = reference_string[i];
                 await sleep(slidevar.value*-1);
-                ptr = document.getElementById(i+"ITEM");
-                ptr.style.paddingTop = "5px";
-                ptr.style.fontWeight="bolder";
-                ptr.style.fontSize="20px";
+                
                 for(let j = 0 ; j < cache.length ; j++){
                     let idx = document.getElementById(i+"item"+j);
                     idx.innerHTML = cache[j].element;
@@ -282,7 +283,7 @@ lru.addEventListener("click",async function(){
                         let idx = document.getElementById(i+"item"+j);
                         idx.style.backgroundColor = "lightseagreen";
                         idx.style.color = "white";
-                        ptr.innerHTML = "-";
+                        
                         await sleep(slidevar.value*-1+1000);
                     }
                     cache[j].index=i;
@@ -297,7 +298,7 @@ lru.addEventListener("click",async function(){
             }
             if(!fl){
                 let idx;
-                if(cache.length==4){
+                if(cache.length==frameSize){
                     cache[pre].index = i;
                     cache[pre].element = reference_string[i];
                     if(no_execution){
@@ -320,7 +321,6 @@ lru.addEventListener("click",async function(){
                 }
                 if(no_execution) {
                     idx.style.color = "white";
-                    ptr.innerHTML= "*";
                 }
                 pagefaults++;
                 if(no_execution){
@@ -349,23 +349,26 @@ opr.addEventListener("click",async function(){
             alert("No reference string is given ! ! !");
             return ;
         }
+        if(!bestFlag){ 
+            frameSize = prompt("Please Enter the frame size : ");
+            if(frameSize==0){
+                alert('Enter frame size ! ! !')
+                return;
+            }
+        }
         flag=false;
         pagefaults = 0;
         if(no_execution){
             algo.innerHTML = "OPTIMAL PAGE REPLACEMENT ALGORITHM";
             grids.replaceChildren();
-            gridformation();
+            gridformation(frameSize);
             nopagefault.innerHTML = "Number of Page Faults : ";
         }
         for(let i = 0 ; i < reference_string.length ; i++){
-            let fl = false,ptr;
+            let fl = false;
             if(no_execution){
                 cur_ele.innerHTML = reference_string[i];
                 await sleep(slidevar.value*-1);
-                ptr = document.getElementById(i+"ITEM");
-                ptr.style.paddingTop = "5px";
-                ptr.style.fontWeight="bolder";
-                ptr.style.fontSize="20px";
                 for(let j = 0 ; j < cache.length ; j++){
                     let idx = document.getElementById(i+"item"+j);
                     idx.innerHTML = cache[j];
@@ -377,7 +380,6 @@ opr.addEventListener("click",async function(){
                         let idx = document.getElementById(i+"item"+j);
                         idx.style.backgroundColor = "lightseagreen";
                         idx.style.color = "white";
-                        ptr.innerHTML = "-";
                         await sleep(slidevar.value*-1+1000);
                     }
                     fl=true;
@@ -386,7 +388,7 @@ opr.addEventListener("click",async function(){
             }
             if(!fl){
                 let idx;
-                if(cache.length===4){
+                if(cache.length==frameSize){
                     let temp = [];
                     for(let k = 0 ; k < cache.length; k++){
                         let flag = false;
@@ -418,7 +420,6 @@ opr.addEventListener("click",async function(){
                     idx.innerHTML = reference_string[i];
                     idx.style.backgroundColor = "red";
                     idx.style.color = "white";
-                    ptr.innerHTML= "*";
                     await sleep(slidevar.value*-1+1000);
                 }
                 pagefaults++;
@@ -434,6 +435,7 @@ opr.addEventListener("click",async function(){
         flag=true;
         cur_ele.innerHTML="";
         if(reference_string.length && no_execution) alert("Execution is Finished");
+        
     }
     else{
         if(no_execution) alert("Your program is already running!!!");

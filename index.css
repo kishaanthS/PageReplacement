@@ -75,6 +75,14 @@ body{
     text-align: right;
 }
 
+#string{
+    margin-bottom: 5px;
+}
+
+#num{
+    color:red;
+}
+
 
 #input{
     font-size :20px;
@@ -93,6 +101,14 @@ body{
     background-color: antiquewhite;
     text-align: center;
 }
+
+
+#grids{
+    align-items: center;
+    display: flex;
+    justify-content: center;
+}
+
 
 #addclear{
     display: flex;
